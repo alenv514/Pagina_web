@@ -1,0 +1,1043 @@
+:root {
+  --bg-dark: #0A1123;
+  --secondary: #3A3E6C;
+  --cadet-grey: #959BB5;
+  --cool-grey: #8A8CAC;
+  --accent-main: #8387C3;
+  --accent-bright: #b3b7ff;
+  /* Lighter Ube for active glow */
+  --text-white: #F8F9FA;
+  --glass-bg: rgba(10, 17, 35, 0.4);
+  --glass-border: rgba(131, 135, 195, 0.3);
+  --neon-glow: rgba(131, 135, 195, 0.8);
+}
+
+body {
+  margin: 0;
+  font-family: 'Courier New', Courier, monospace;
+  /* HUD Tech font look */
+  background: radial-gradient(circle at center, var(--secondary) 0%, var(--bg-dark) 80%);
+  background-attachment: fixed;
+  color: var(--text-white);
+  text-align: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Cyberpunk Grid Background */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image:
+    linear-gradient(var(--glass-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  opacity: 0.15;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Floating Particles/Stars */
+#particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, var(--accent-bright), rgba(0, 0, 0, 0)),
+    radial-gradient(1.5px 1.5px at 150px 150px, var(--accent-bright), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 80px 300px, var(--cadet-grey), rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 300px 80px, var(--accent-bright), rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 250px 250px, var(--cool-grey), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 400px 400px, var(--accent-bright), rgba(0, 0, 0, 0));
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  animation: float-stars 100s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes float-stars {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-500px);
+  }
+}
+
+/* Cyberpunk Horizontal Scanning Line */
+body::after {
+  content: "";
+  position: fixed;
+  top: -100px;
+  left: 0;
+  width: 100vw;
+  height: 2px;
+  background: var(--accent-bright);
+  box-shadow: 0 0 10px var(--accent-bright), 0 0 20px var(--accent-bright);
+  opacity: 0.5;
+  z-index: 100;
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    top: -10px;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.5;
+  }
+
+  90% {
+    opacity: 0.5;
+  }
+
+  100% {
+    top: 100vh;
+    opacity: 0;
+  }
+}
+
+/* Navegación */
+nav {
+  background: rgba(10, 17, 35, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-bottom: 1px solid var(--accent-main);
+  box-shadow: 0 0 15px var(--neon-glow);
+  position: relative;
+  z-index: 10;
+}
+
+nav a {
+  color: var(--cadet-grey);
+  margin: 0 20px;
+  text-decoration: none;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  position: relative;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--accent-bright);
+  transition: width 0.3s;
+  box-shadow: 0 0 8px var(--accent-bright);
+}
+
+nav a:hover {
+  color: var(--accent-bright);
+  text-shadow: 0 0 8px var(--accent-bright);
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+
+section {
+  display: none;
+  padding: 20px;
+}
+
+.active {
+  display: block;
+  animation: glitch-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes glitch-in {
+  0% {
+    transform: scale(0.98) translateY(10px);
+    opacity: 0;
+    filter: hue-rotate(90deg);
+  }
+
+  50% {
+    opacity: 0.8;
+    filter: hue-rotate(-45deg);
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    filter: hue-rotate(0deg);
+  }
+}
+
+h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 48px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: #fff;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 20px var(--accent-main),
+    0 0 40px var(--accent-main),
+    0 0 80px var(--accent-main);
+  margin-bottom: 40px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Pantalla de inicio personalizada (El HUD Container) */
+.start-options {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--accent-main);
+  box-shadow:
+    0 0 20px rgba(131, 135, 195, 0.2),
+    inset 0 0 20px rgba(131, 135, 195, 0.1);
+  color: var(--text-white);
+  padding: 40px;
+  border-radius: 12px;
+  display: inline-block;
+  text-align: center;
+  position: relative;
+  /* Cyberpunk corners */
+  clip-path: polygon(20px 0, 100% 0,
+      100% calc(100% - 20px), calc(100% - 20px) 100%,
+      0 100%, 0 20px);
+}
+
+/* Glow lines around HUD */
+.start-options::before,
+.start-options::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--accent-bright);
+  box-shadow: 0 0 10px var(--accent-bright);
+  pointer-events: none;
+}
+
+.start-options::before {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 10px;
+}
+
+.start-options::after {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 10px;
+}
+
+.option-label {
+  font-weight: 600;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--cool-grey);
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(138, 140, 172, 0.5);
+}
+
+/* Inner containers for options */
+.start-options>div:nth-child(2),
+.start-options>div:nth-child(4) {
+  background: rgba(131, 135, 195, 0.05);
+  border: 1px solid rgba(131, 135, 195, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  display: inline-block;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  margin-bottom: 10px;
+}
+
+.size-buttons button,
+.theme-buttons button {
+  margin: 5px;
+  background: transparent;
+  color: var(--cadet-grey);
+  border: 1px solid var(--cadet-grey);
+  padding: 12px 24px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.size-buttons button:hover,
+.theme-buttons button:hover {
+  color: var(--text-white);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 10px var(--accent-main), inset 0 0 10px var(--accent-main);
+  background: rgba(131, 135, 195, 0.1);
+  animation: txt-glitch 0.2s linear infinite alternate;
+}
+
+@keyframes txt-glitch {
+  0% {
+    transform: translate(1px, 1px);
+  }
+
+  100% {
+    transform: translate(-1px, -1px);
+  }
+}
+
+.size-buttons button.selected,
+.theme-buttons button.selected {
+  background: rgba(131, 135, 195, 0.2);
+  color: var(--text-white);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 15px var(--accent-bright), inset 0 0 10px var(--accent-bright);
+  text-shadow: 0 0 5px var(--text-white);
+}
+
+/* Hover glitch effect on the button border */
+.size-buttons button::before,
+.theme-buttons button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(179, 183, 255, 0.4), transparent);
+  transition: 0.5s;
+}
+
+.size-buttons button:hover::before,
+.theme-buttons button:hover::before {
+  left: 100%;
+}
+
+/* START BUTTON */
+section#inicio>button {
+  margin-top: 40px;
+  font-size: 20px;
+  padding: 15px 50px;
+  border-radius: 4px;
+  background: transparent;
+  border: 2px solid var(--accent-bright);
+  color: var(--text-white);
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 800;
+  letter-spacing: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px var(--accent-main), inset 0 0 15px var(--accent-main);
+  animation: charge-pulse 2s infinite;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes charge-pulse {
+  0% {
+    box-shadow: 0 0 5px var(--accent-main), inset 0 0 5px var(--accent-main);
+  }
+
+  50% {
+    box-shadow: 0 0 25px var(--accent-bright), inset 0 0 20px var(--accent-bright);
+    border-color: #fff;
+    text-shadow: 0 0 10px #fff;
+  }
+
+  100% {
+    box-shadow: 0 0 5px var(--accent-main), inset 0 0 5px var(--accent-main);
+  }
+}
+
+section#inicio>button:hover {
+  background: var(--accent-main);
+  color: #fff;
+  animation: none;
+  box-shadow: 0 0 30px var(--accent-bright);
+  transform: scale(1.05);
+}
+
+/* Vista previa de tema */
+.theme-preview {
+  margin-top: 20px;
+  min-height: 40px;
+}
+
+.theme-preview .preview-symbol {
+  font-size: 28px;
+  margin: 0 8px;
+  transition: transform 0.3s;
+  display: inline-block;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+}
+
+.theme-preview .preview-symbol:hover {
+  transform: scale(1.3) rotate(10deg);
+  filter: drop-shadow(0 0 15px var(--accent-bright));
+}
+
+/* Tablero Nivel 1 */
+h2.cyber-title {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 38px;
+  color: var(--accent-bright);
+  text-shadow: 0 0 10px var(--accent-main), 0 0 20px var(--accent-bright), 0 0 30px var(--accent-bright);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin-bottom: 5px;
+  animation: txt-glitch 3s infinite alternate;
+}
+
+.cyber-hud {
+  margin-top: 5px;
+  font-size: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 2px;
+}
+
+.hud-label {
+  color: var(--cadet-grey);
+}
+
+.hud-value {
+  color: #fff;
+  text-shadow: 0 0 10px #fff, 0 0 20px var(--accent-bright);
+  font-weight: bold;
+}
+
+/* Botón flotante al lado del tablero */
+.cyber-hud .home-btn {
+  background: rgba(131, 135, 195, 0.1);
+  border: 1px solid var(--accent-bright);
+  box-shadow: 0 0 15px var(--accent-main);
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-left: 20px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: inline-flex;
+  vertical-align: middle;
+  position: relative;
+}
+
+.cyber-hud .home-btn::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 9px;
+  border: 1px dashed var(--accent-bright);
+  animation: cyber-spin 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes cyber-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.cyber-hud .home-btn:hover {
+  transform: scale(1.2);
+  background: rgba(131, 135, 195, 0.3);
+  box-shadow: 0 0 25px var(--accent-bright);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 90px);
+  gap: 12px;
+  justify-content: center;
+  margin-top: 30px;
+  width: max-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Carta Holográfica 3D */
+.card {
+  width: 90px;
+  height: 110px;
+  perspective: 1200px;
+  cursor: pointer;
+}
+
+.inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.card.flip .inner {
+  transform: rotateY(180deg) translateZ(10px);
+}
+
+.front,
+.back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  backface-visibility: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(131, 135, 195, 0.5);
+}
+
+/* Parte de atrás (Interrogación) - Aspecto Translúcido */
+.front {
+  background: rgba(40, 48, 85, 0.6);
+  backdrop-filter: blur(12px);
+  color: var(--accent-bright);
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: inset 0 0 10px rgba(131, 135, 195, 0.2), 0 0 10px rgba(10, 17, 35, 0.8);
+  transition: all 0.3s;
+}
+
+.card:hover .front {
+  border-color: var(--accent-bright);
+  box-shadow: inset 0 0 20px rgba(131, 135, 195, 0.5), 0 0 20px var(--accent-main);
+  text-shadow: 0 0 10px var(--accent-bright);
+}
+
+/* Parte frontal (Símbolo Revelado) - Iluminación Neón */
+.back {
+  background: rgba(10, 17, 35, 0.9);
+  backdrop-filter: blur(15px);
+  transform: rotateY(180deg);
+  border: 1px solid var(--accent-bright);
+  box-shadow: inset 0 0 25px rgba(131, 135, 195, 0.4), 0 10px 25px var(--accent-bright);
+}
+
+.victory {
+  margin-top: 25px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--accent-bright);
+  text-shadow: 0 0 15px var(--accent-bright);
+  text-transform: uppercase;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* overlay de mensaje centrado */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 17, 35, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.message-box {
+  background: var(--glass-bg);
+  border: 2px solid var(--accent-bright);
+  box-shadow: 0 0 30px rgba(131, 135, 195, 0.4), inset 0 0 20px rgba(131, 135, 195, 0.2);
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  color: var(--text-white);
+  max-width: 90%;
+  animation: glitch-in 0.3s ease-out forwards;
+  position: relative;
+  clip-path: polygon(15px 0, 100% 0,
+      100% calc(100% - 15px), calc(100% - 15px) 100%,
+      0 100%, 0 15px);
+}
+
+/* fase de memorización */
+.memoria-overlay .memoria-box {
+  background: transparent;
+  padding: 10px;
+  border: none;
+  box-shadow: none;
+  clip-path: none;
+}
+
+.memoria-box {
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.memoria-info {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  color: var(--cadet-grey);
+  text-shadow: 0 0 5px var(--cadet-grey);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: cyber-flicker 4s infinite alternate;
+}
+
+@keyframes cyber-flicker {
+  0% {
+    opacity: 1;
+  }
+
+  5% {
+    opacity: 0.8;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  55% {
+    opacity: 0.3;
+  }
+
+  60% {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--accent-bright);
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.memoria-count {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 900;
+  font-size: 32px;
+  color: #fff;
+  text-shadow: 0 0 15px var(--accent-bright), 0 0 30px var(--accent-main);
+  animation: cyber-pulse 1s infinite alternate;
+  display: inline-block;
+}
+
+@keyframes cyber-pulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 10px var(--accent-bright);
+  }
+
+  100% {
+    transform: scale(1.2);
+    text-shadow: 0 0 25px #fff, 0 0 40px var(--accent-bright);
+  }
+}
+
+.memoria-grid {
+  display: grid;
+  gap: 15px;
+  justify-items: center;
+}
+
+.memoria-card {
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  background: rgba(40, 48, 85, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: var(--text-white);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Colores dinámicos neón para el borde de las tarjetas */
+.memoria-card:nth-child(4n+1) {
+  border-color: #0ff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.memoria-card:nth-child(4n+2) {
+  border-color: #f0f;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 0, 255, 0.2);
+}
+
+.memoria-card:nth-child(4n+3) {
+  border-color: #cf0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(204, 255, 0, 0.2);
+}
+
+.memoria-card:nth-child(4n+4) {
+  border-color: #f90;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 153, 0, 0.2);
+}
+
+.memoria-card:hover {
+  transform: scale(1.1) translateY(-5px);
+}
+
+.memoria-card:nth-child(4n+1):hover {
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.8), 0 0 25px #0ff;
+}
+
+.memoria-card:nth-child(4n+2):hover {
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.8), 0 0 25px #f0f;
+}
+
+.memoria-card:nth-child(4n+3):hover {
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.8), 0 0 25px #cf0;
+}
+
+.memoria-card:nth-child(4n+4):hover {
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.8), 0 0 25px #f90;
+}
+
+/* preview layout (El HUD principal de drag & drop) */
+.preview-container {
+  margin-bottom: 20px;
+  padding: 30px;
+  background: rgba(10, 17, 35, 0.6);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(131, 135, 195, 0.4);
+  box-shadow: 0 0 30px rgba(131, 135, 195, 0.2), inset 0 0 20px rgba(131, 135, 195, 0.1);
+  border-radius: 4px;
+  position: relative;
+  clip-path: polygon(20px 0, 100% 0,
+      100% calc(100% - 20px), calc(100% - 20px) 100%,
+      0 100%, 0 20px);
+  animation: glitch-in 0.5s ease-out forwards;
+}
+
+/* Efectos holograficos de HUD en el contenedor de drag and drop */
+.preview-container::before,
+.preview-container::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--accent-bright);
+  box-shadow: 0 0 10px var(--accent-bright);
+  pointer-events: none;
+}
+
+.preview-container::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.preview-container::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+.preview-grid {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  margin-top: 15px;
+}
+
+.preview-cell {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  background: rgba(131, 135, 195, 0.1);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 1px solid var(--accent-main);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* interacción drag & drop */
+.interactive-area {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  /* Alineación centrada para el diseño estilo HUD */
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 60px;
+  gap: 10px;
+  width: 140px;
+}
+
+.palette-left {
+  justify-items: end;
+}
+
+.palette-right {
+  justify-items: start;
+}
+
+.draggable-item {
+  width: 60px;
+  height: 60px;
+  background: rgba(40, 48, 85, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  cursor: grab;
+  border: 1px solid var(--accent-main);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(131, 135, 195, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  z-index: 10;
+}
+
+/* Borde neón dinámico al arrastrar la tarjeta */
+.draggable-item:hover {
+  transform: translateY(-5px) scale(1.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.9), 0 0 15px var(--accent-bright);
+  border-color: var(--accent-bright);
+}
+
+.draggable-item:active {
+  cursor: grabbing;
+  transform: scale(0.9);
+  box-shadow: 0 0 30px #f0f;
+  border-color: #f0f;
+}
+
+.targets {
+  display: grid;
+  gap: 10px;
+}
+
+.target-cell {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  background: rgba(10, 17, 35, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 1px dashed var(--cadet-grey);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.target-cell.correct {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4cf;
+  /* Cyberpunk Green/Cyan */
+  box-shadow: 0 0 15px #4cf, inset 0 0 10px #4cf;
+  color: white;
+  animation: cyber-flash 0.5s ease-out;
+}
+
+@keyframes cyber-flash {
+  0% {
+    transform: scale(1.1);
+    box-shadow: 0 0 40px #fff, inset 0 0 30px #fff;
+    background: #fff;
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px #4cf, inset 0 0 10px #4cf;
+    background: rgba(76, 175, 80, 0.1);
+  }
+}
+
+.target-cell.incorrect {
+  background: rgba(229, 57, 53, 0.1);
+  border: 1px solid #f04;
+  /* Cyberpunk Red/Pink */
+  box-shadow: 0 0 15px #f04, inset 0 0 10px #f04;
+  color: white;
+  animation: error-shake 0.4s;
+}
+
+@keyframes error-shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  75% {
+    transform: translateX(-5px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Animación de escaneo al poner la fruta encima */
+.target-cell.checking {
+  animation: cyber-verificar 0.5s infinite alternate;
+  border: 1px solid var(--accent-bright);
+}
+
+@keyframes cyber-verificar {
+  0% {
+    box-shadow: 0 0 10px var(--accent-bright), inset 0 0 10px var(--accent-bright);
+  }
+
+  100% {
+    box-shadow: 0 0 30px #fff, inset 0 0 20px #fff;
+    border-color: #fff;
+    transform: scale(1.05);
+  }
+}
+
+/* botón de casa en el pie del juego (holográfico y pulsante) */
+.game-footer {
+  margin-top: 40px;
+  text-align: center;
+  position: relative;
+}
+
+.game-footer .home-btn {
+  background: linear-gradient(135deg, rgba(131, 135, 195, 0.2), rgba(58, 62, 108, 0.5));
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--accent-main);
+  border-radius: 12px;
+  font-size: 30px;
+  width: 70px;
+  height: 70px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-white);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 20px rgba(10, 17, 35, 0.8), inset 0 0 15px var(--accent-main);
+  animation: bg-pulse 3s infinite alternate;
+}
+
+@keyframes bg-pulse {
+  0% {
+    box-shadow: 0 0 10px rgba(10, 17, 35, 0.8), inset 0 0 5px var(--accent-main);
+  }
+
+  100% {
+    box-shadow: 0 0 30px var(--accent-bright), inset 0 0 25px var(--accent-bright);
+  }
+}
+
+.game-footer .home-btn:hover {
+  background: var(--accent-bright);
+  box-shadow: 0 0 40px var(--accent-bright);
+  transform: scale(1.1) translateY(-5px);
+  color: #fff;
+}
+
+/* botones de icono en overlay (como la casita del memorizar) */
+.overlay-icon-btn {
+  background: rgba(10, 17, 35, 0.8);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(131, 135, 195, 0.4);
+  border-radius: 12px;
+  width: 60px;
+  /* Reducido para encajar en el HUD */
+  height: 60px;
+  font-size: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 auto 15px auto;
+  color: var(--text-white);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(131, 135, 195, 0.1);
+  position: relative;
+  display: block;
+  /* Para centrarlo correctamente con margin auto */
+}
+
+/* Efecto rotatorio alrededor de la casita superior */
+.overlay-icon-btn::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 16px;
+  border: 1px dashed var(--accent-main);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  animation: cyber-spin 4s linear infinite;
+  pointer-events: none;
+}
+
+.overlay-icon-btn:hover {
+  background: rgba(131, 135, 195, 0.2);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 25px var(--accent-bright);
+  transform: translateY(-3px) scale(1.1);
+}
+
+.overlay-icon-btn:hover::before {
+  border: 2px dashed var(--accent-bright);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  animation: cyber-spin 2s linear infinite;
+}
+
+.overlay-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  border-color: var(--cadet-grey);
+}

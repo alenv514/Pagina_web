@@ -1,15 +1,23 @@
 // actualmente sólo necesitamos un tamaño elegido por el usuario
 let boardSize = 2;              // 2x2, 4x4, 6x6
-let nivelActual = 0;            // índice dentro de los niveles del mismo tamaño (0‑8)
-const maxLevelsPerSize = 9;     // cada tamaño dispone de 9 etapas
+let nivelActual = 0;            // índice dentro de los niveles del mismo tamaño
+const maxLevelsPerSize = 10;    // cada tamaño/modo dispone de 10 etapas
 let tablero = null;
 let primeraCarta = null;
 let segundaCarta = null;
 let bloqueado = false;
 let movimientos = 0;
+let maxMovimientos = 0;
 let parejasEncontradas = 0;
 // guarda la última configuración colocada en el tablero
 let ultimaConfiguracion = [];
+
+function obtenerMaxMovimientos(size) {
+  if (size === 2) return 8;
+  if (size === 4) return 20;
+  if (size === 6) return 30;
+  return Infinity;
+}
 
 // temática actual de las cartas
 let currentTheme = 'frutas';
@@ -111,7 +119,10 @@ function iniciarJuego(index = 0) {
   tablero.innerHTML = "";
   movimientos = 0;
   parejasEncontradas = 0;
-  document.getElementById("movimientos").textContent = movimientos;
+  maxMovimientos = obtenerMaxMovimientos(boardSize);
+  document.getElementById("movimientos").textContent = `${movimientos} / ${maxMovimientos}`;
+  const titulo = document.getElementById("nivelTitulo");
+  if (titulo) titulo.textContent = `Nivel ${nivelActual + 1}`;
   document.getElementById("mensajeVictoria").textContent = "";
 
   const size = boardSize;
@@ -271,7 +282,7 @@ function voltearCarta(card, simbolo) {
   } else {
     segundaCarta = { card, simbolo };
     movimientos++;
-    document.getElementById("movimientos").textContent = movimientos;
+    document.getElementById("movimientos").textContent = `${movimientos} / ${maxMovimientos}`;
     verificarPareja();
   }
 }
@@ -284,6 +295,8 @@ function verificarPareja() {
     const totalPairs = Math.floor((boardSize * boardSize) / 2);
     if (parejasEncontradas === totalPairs) {
       mostrarVictoria();
+    } else if (movimientos >= maxMovimientos) {
+      setTimeout(() => mostrarGameOver('¡Te quedaste sin movimientos!'), 500);
     }
   } else {
     bloqueado = true;
@@ -291,6 +304,9 @@ function verificarPareja() {
       primeraCarta.card.classList.remove("flip");
       segundaCarta.card.classList.remove("flip");
       resetTurno();
+      if (movimientos >= maxMovimientos) {
+        mostrarGameOver('¡Te quedaste sin movimientos!');
+      }
     }, 1000);
   }
 }
@@ -301,17 +317,22 @@ function resetTurno() {
 
 function mostrarVictoria() {
   const tieneProximoNivel = nivelActual < maxLevelsPerSize - 1;
-  const text = tieneProximoNivel
-    ? `🎉 ¡Siguiente nivel!`
-    : `🎉 ¡Nivel ${nivelActual + 1} completado en ${movimientos} movimientos!`;
   const box = document.createElement('div');
   box.className = 'message-box';
-  const msg = document.createElement('div');
-  msg.textContent = text;
-  box.appendChild(msg);
 
-  // Agregar una fruta del siguiente nivel si hay
-  if (tieneProximoNivel) {
+  if (!tieneProximoNivel) {
+    const msg = document.createElement('div');
+    msg.textContent = `🎉 ¡Nivel ${nivelActual + 1} completado en ${movimientos} movimientos!`;
+    box.appendChild(msg);
+  } else {
+    // Título "Otro juego"
+    const tituloOtroJuego = document.createElement('div');
+    tituloOtroJuego.textContent = 'Otro juego';
+    tituloOtroJuego.style.fontSize = '24px';
+    tituloOtroJuego.style.fontWeight = 'bold';
+    box.appendChild(tituloOtroJuego);
+
+    // Fruta del siguiente nivel
     const frutasContainer = document.createElement('div');
     frutasContainer.style.display = 'flex';
     frutasContainer.style.justifyContent = 'center';
@@ -333,6 +354,11 @@ function mostrarVictoria() {
     frutaEl.onclick = () => { eliminarOverlay(); irAlJuegoMemoria(); };
     frutasContainer.appendChild(frutaEl);
     box.appendChild(frutasContainer);
+
+    // Mensaje de Siguiente nivel
+    const msg = document.createElement('div');
+    msg.textContent = `🎉 ¡Siguiente nivel!`;
+    box.appendChild(msg);
   }
 
   const btnContainer = document.createElement('div');
@@ -376,11 +402,15 @@ function irAlJuegoMemoria() {
     msg.textContent = `🎉 ¡Completaste los ${maxLevelsPerSize} niveles de memorizar!`;
     box.appendChild(msg);
     const btn = document.createElement('button');
-    btn.textContent = 'Volver al inicio';
+    btn.className = 'overlay-icon-btn';
+    btn.innerHTML = '🏠';
+    btn.title = 'Volver al inicio';
+    btn.style.width = '80px';
+    btn.style.height = '80px';
+    btn.style.fontSize = '40px';
     btn.onclick = () => {
       eliminarOverlay();
       mostrarSeccion('inicio');
-      nivelMemoria = 0; // reiniciar para próxima ronda
     };
     box.appendChild(btn);
     const overlay = document.createElement('div');
@@ -390,15 +420,44 @@ function irAlJuegoMemoria() {
     return;
   }
 
+  // inicia un único nivel (ronda) del mini-juego interactivo extra
+  // recibe opcionalmente un existingOverlay para evitar recrearlo y perder el flujo
+  irAlJuegoFrutasArrastre(null);
+}
+
+// inicia un único nivel (ronda) del mini-juego interactivo extra
+function irAlJuegoFrutasArrastre() {
+  nivelMemoria++;
   const nextSize = boardSize;
-  const previewVals = generarValores(nextSize);
+  const totalCells = nextSize * nextSize;
+  let disponibles = mezclar([...new Set(seleccionarCartasPorTema())]);
+  let resultVals = disponibles.slice(0, totalCells);
+  let idx = 0;
+  while (resultVals.length < totalCells) {
+    resultVals.push(disponibles[idx % disponibles.length]);
+    idx++;
+  }
+  const previewVals = mezclar(resultVals);
 
   const box = document.createElement('div');
   box.className = 'message-box';
-  // (el botón de inicio durante la fase interactiva se añade dentro de
-  // habilitarInteractividad; aquí no es necesario un segundo icono)
+
   const previewContainer = document.createElement('div');
   previewContainer.className = 'preview-container';
+
+  let interval; // declarado antes para poder limpiarlo
+  const homeBtn = document.createElement('button');
+  homeBtn.className = 'overlay-icon-btn';
+  homeBtn.innerHTML = '🏠';
+  homeBtn.title = 'Volver al inicio';
+  homeBtn.style.alignSelf = 'flex-start';
+  homeBtn.style.marginBottom = '10px';
+  homeBtn.onclick = () => {
+    if (interval) clearInterval(interval);
+    eliminarOverlay();
+    mostrarSeccion('inicio');
+  };
+  previewContainer.appendChild(homeBtn);
 
   const info = document.createElement('div');
   info.className = 'memoria-info';
@@ -432,18 +491,17 @@ function irAlJuegoMemoria() {
 
   // iniciar cuenta regresiva
   let rem = 10;
-  const interval = setInterval(() => {
+  interval = setInterval(() => {
     rem -= 1;
     if (rem >= 0) countSpan.textContent = rem;
     if (rem === 0) {
       clearInterval(interval);
       // al terminar la cuenta, convertimos el cuadro en interactivo
       habilitarInteractividad(previewContainer, previewVals, nextSize, () => {
-        // cuando se complete correctamente, si quedan más niveles de arrastre
+        // cuando se complete correctamente
         if (nivelMemoria < maxLevelsPerSize) {
-          // avanzamos directamente al siguiente nivel de la fase de mover frutas
-          eliminarOverlay();
-          irAlJuegoFrutasArrastre();
+          // mostramos botón de siguiente nivel (play)
+          mostrarSiguienteNivelOverlay();
         } else {
           // ya no hay más niveles drag; mostramos la victoria final
           eliminarOverlay();
@@ -455,6 +513,36 @@ function irAlJuegoMemoria() {
       });
     }
   }, 1000);
+}
+
+// Muestra botón de PLAY para el siguiente nivel del mini juego
+function mostrarSiguienteNivelOverlay() {
+  const box = document.createElement('div');
+  box.className = 'message-box';
+
+  const title = document.createElement('div');
+  title.className = 'memoria-info';
+  title.textContent = `NIVEL ${nivelMemoria} COMPLETADO`;
+  title.style.marginBottom = '20px';
+  box.appendChild(title);
+
+  const btn = document.createElement('button');
+  btn.className = 'overlay-icon-btn';
+  btn.innerHTML = '▶️';
+  btn.title = 'Siguiente Nivel';
+  btn.style.width = '80px';
+  btn.style.height = '80px';
+  btn.style.fontSize = '40px';
+  btn.onclick = () => {
+    eliminarOverlay(); // removemos la victoria y el juego anterior
+    irAlJuegoFrutasArrastre(); // avanzar al siguiente nivel limpio
+  };
+  box.appendChild(btn);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
 }
 
 

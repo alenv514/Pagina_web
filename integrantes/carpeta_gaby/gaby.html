@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Memory Game Moderno</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="particles-bg"></div>
+
+
+
+  <section id="inicio" class="active">
+    <h1>Memory Game</h1>
+    <div class="start-options">
+      <div class="option-label">TAMAÑO DE TABLERO</div>
+      <div class="size-buttons">
+        <button id="size-small" data-size="2" onclick="setBoardSize(2)">PEQUEÑO</button>
+        <button id="size-medium" data-size="4" onclick="setBoardSize(4)">MEDIANO</button>
+        <button id="size-large" data-size="6" onclick="setBoardSize(6)">GRANDE</button>
+      </div>
+      <div class="option-label">TEMA DE CARTAS</div>
+      <div class="theme-buttons">
+        <button id="theme-tradicional" data-theme="tradicional" onclick="setTheme('tradicional')">TRADICIONAL</button>
+        <button id="theme-frutas" data-theme="frutas" onclick="setTheme('frutas')">FRUTAS</button>
+        <button id="theme-animales" data-theme="animales" onclick="setTheme('animales')">ANIMALES</button>
+      </div>
+      <div id="theme-preview" class="theme-preview"></div>
+
+      <!-- Opción para Otro Juego -->
+      <div class="option-label" style="margin-top: 30px;">OTRO JUEGO</div>
+      <div style="cursor: pointer; display: inline-block; transition: transform 0.3s;"
+        onclick="iniciarMiniJuegoFrutas()" onmouseover="this.style.transform='scale(1.1)'"
+        onmouseout="this.style.transform='scale(1)'">
+        <span style="font-size: 50px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.4));">🍌</span>
+      </div>
+    </div>
+    <button onclick="mostrarSeccion('juego'); iniciarJuego();">EMPEZAR</button>
+    <!-- eliminado temporal botón adicional; ahora se ubica dentro del tablero -->
+  </section>
+
+  <section id="juego">
+    <h2 id="nivelTitulo" class="cyber-title" style="margin-top: 20px;">NIVEL 1</h2>
+
+    <div class="scoreboard cyber-hud">
+      <span class="hud-label">Movimientos:</span> <span id="movimientos" class="hud-value">0</span>
+    </div>
+
+    <div id="tablero" class="grid"></div>
+
+    <div id="mensajeVictoria" class="victory"></div>
+
+    <div class="game-footer">
+      <button class="home-btn" onclick="mostrarSeccion('inicio')" title="Volver al inicio">🏠</button>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
