@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WESTERN DUEL - EL DUELO FINAL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;600;700&family=Share+Tech+Mono&display=swap');
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            user-select: none;
+        }
+        
+        body { 
+            background: #000;
+            color: white; 
+            font-family: 'Rajdhani', sans-serif; 
+            overflow: hidden;
+        }
+
+        /* --- PANTALLA DE CARGA --- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            transition: opacity 1s;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid #d2691e;
+            border-top-color: gold;
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin: 0 auto 30px;
+        }
+
+        .loading-text {
+            font-size: 24px;
+            color: #d2691e;
+            letter-spacing: 4px;
+        }
+
+        .loading-subtext {
+            font-size: 16px;
+            color: #fff;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #game-container { 
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            display: none;
+        }
+        
+        canvas { 
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- MENÚ PRINCIPAL CON IMAGEN DE FONDO --- */
+        #menu-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('fondo_menu.webp') center/cover no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Capa oscura semitransparente sobre el fondo */
+        #menu-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        .menu-panel {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 4px solid #d2691e;
+            border-radius: 30px;
+            padding: 60px;
+            box-shadow: 0 0 80px rgba(210, 105, 30, 0.7);
+            text-align: center;
+            max-width: 1000px;
+            width: 90%;
+            animation: menuAppear 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes menuAppear {
+            0% { transform: scale(0.8) translateY(50px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .menu-title {
+            font-size: 82px;
+            color: #d2691e;
+            text-shadow: 0 0 30px #d2691e, 0 0 60px gold;
+            margin-bottom: 20px;
+            font-weight: 900;
+            letter-spacing: 8px;
+        }
+
+        .menu-subtitle {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 60px;
+            opacity: 0.9;
+            font-family: 'Share Tech Mono', monospace;
+            text-shadow: 0 0 10px gold;
+        }
+
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .difficulty-card {
+            background: rgba(210, 105, 30, 0.15);
+            border: 3px solid #d2691e;
+            border-radius: 20px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .difficulty-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(210, 105, 30, 0.5);
+            background: rgba(210, 105, 30, 0.3);
+            border-color: gold;
+        }
+
+        .difficulty-card.selected {
+            border: 4px solid gold;
+            box-shadow: 0 0 60px gold;
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .difficulty-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 40px;
+            color: gold;
+            text-shadow: 0 0 20px gold;
+        }
+
+        .difficulty-name {
+            font-size: 42px;
+            font-weight: 700;
+            color: #d2691e;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px #d2691e;
+        }
+
+        .difficulty-desc {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 25px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .difficulty-stats {
+            display: flex;
+            justify-content: space-around;
+            font-size: 16px;
+            color: #f4a460;
+        }
+
+        .difficulty-stats span {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .difficulty-stats .value {
+            font-size: 28px;
+            color: gold;
+            font-weight: 700;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #d2691e, #b85e1a, #8b4513);
+            border: none;
+            color: white;
+            font-size: 42px;
+            font-weight: 700;
+            padding: 25px 100px;
+            border-radius: 70px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            box-shadow: 0 0 50px #d2691e;
+            transition: all 0.3s ease;
+            margin-top: 40px;
+            border: 3px solid gold;
+        }
+
+        .start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 100px gold;
+        }
+
+        .start-button.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* --- HUD DEL JUEGO --- */
+        .hud-layer {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            pointer-events: none; 
+            z-index: 20; 
+            padding: 30px;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+        }
+
+        .glass-panel {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid #d2691e;
+            padding: 20px 25px; 
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(210, 105, 30, 0.5);
+        }
+
+        .value { 
+            font-size: 48px; 
+            font-weight: 700; 
+            text-shadow: 0 0 20px currentColor;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 3px;
+        }
+        
+        .label { 
+            font-size: 14px; 
+            opacity: 0.9; 
+            letter-spacing: 4px; 
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            color: #d2691e;
+        }
+
+        #top-left { 
+            align-self: flex-start; 
+            border-left: 6px solid #00d2ff;
+        }
+        
+        #top-right { 
+            align-self: flex-end; 
+            border-right: 6px solid #ff0044; 
+            text-align: right;
+        }
+
+        /* --- MIRA --- */
+        #tracking-reticle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 30;
+            display: none;
+        }
+
+        .reticle-circle-outer {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 3px solid #d2691e;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 40px #d2691e, inset 0 0 30px #d2691e;
+            animation: reticlePulse 1.5s infinite;
+        }
+
+        .reticle-circle-inner {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid gold;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px gold;
+        }
+
+        .reticle-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: gold;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 40px gold;
+            animation: dotPulse 1s infinite;
+        }
+
+        .reticle-line-horizontal {
+            position: absolute;
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #d2691e, gold, #d2691e, transparent);
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px #d2691e;
+        }
+
+        .reticle-line-vertical {
+            position: absolute;
+            width: 3px;
+            height: 150px;
+            background: linear-gradient(180deg, transparent, #d2691e, gold, #d2691e, transparent);
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px #d2691e;
+        }
+
+        .target-info-reticle {
+            position: absolute;
+            color: white;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            text-shadow: 0 0 10px gold;
+            transform: translate(-50%, 30px);
+            white-space: nowrap;
+            background: rgba(0,0,0,0.8);
+            padding: 6px 15px;
+            border-radius: 20px;
+            border: 2px solid #d2691e;
+            backdrop-filter: blur(4px);
+        }
+
+        /* --- LÁSER --- */
+        #laser-beam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 28;
+        }
+
+        .laser-line {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff4500, gold, #ff4500, transparent);
+            box-shadow: 0 0 40px #ff4500, 0 0 80px gold;
+            transform-origin: left center;
+            animation: laserFlicker 0.1s infinite;
+        }
+
+        .laser-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: gold;
+            border-radius: 50%;
+            box-shadow: 0 0 40px gold;
+            transform: translate(-50%, -50%);
+            animation: laserPulse 0.2s infinite;
+        }
+
+        @keyframes reticlePulse {
+            0% { border-color: #d2691e; box-shadow: 0 0 40px #d2691e; }
+            50% { border-color: gold; box-shadow: 0 0 70px gold; }
+            100% { border-color: #d2691e; box-shadow: 0 0 40px #d2691e; }
+        }
+
+        @keyframes dotPulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes laserFlicker {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        @keyframes laserPulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        #headshot-msg {
+            position: absolute; 
+            top: 30%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            font-size: 90px; 
+            color: gold; 
+            display: none; 
+            z-index: 100;
+            text-shadow: 0 0 40px gold, 0 0 80px orange;
+            font-weight: 900;
+            letter-spacing: 8px;
+            white-space: nowrap;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        #kill-feed {
+            position: absolute; 
+            top: 120px; 
+            right: 40px;
+            width: 350px; 
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .kill-message {
+            background: rgba(0, 0, 0, 0.95);
+            border-left: 6px solid #d2691e;
+            padding: 15px 25px;
+            margin: 10px 0;
+            font-size: 18px;
+            color: white;
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(210, 105, 30, 0.5);
+            transform-origin: right;
+            animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateX(100%) scale(0.8); opacity: 0; }
+            70% { transform: translateX(-10px) scale(1.02); }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        #minimap {
+            position: absolute; 
+            bottom: 150px; 
+            left: 40px;
+            width: 200px; 
+            height: 200px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #d2691e;
+            border-radius: 10px;
+            z-index: 25;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(210, 105, 30, 0.5);
+        }
+
+        #minimap canvas {
+            width: 100%; 
+            height: 100%;
+        }
+
+        #sound-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            color: gold;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+            border: 2px solid #d2691e;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">CARGANDO WESTERN DUEL</div>
+            <div class="loading-subtext" id="loading-status">Preparando armas...</div>
+        </div>
+    </div>
+
+    <div id="sound-status">🔊 Inicializando audio...</div>
+
+    <!-- MENÚ PRINCIPAL -->
+    <div id="menu-container">
+        <div class="menu-panel">
+            <div class="menu-title">WESTERN DUEL</div>
+            <div class="menu-subtitle">ELIGE TU DIFICULTAD</div>
+            
+            <div class="difficulty-grid">
+                <div class="difficulty-card" data-difficulty="normal">
+                    <div class="difficulty-name">NORMAL</div>
+                    <div class="difficulty-desc">Para principiantes</div>
+                    <div class="difficulty-stats">
+                        <span>VEL <span class="value">1.0x</span></span>
+                        <span>VIDA <span class="value">100%</span></span>
+                        <span>PTS <span class="value">1.0x</span></span>
+                    </div>
+                </div>
+                
+                <div class="difficulty-card" data-difficulty="hard">
+                    <div class="difficulty-name">DIFÍCIL</div>
+                    <div class="difficulty-desc">Para expertos</div>
+                    <div class="difficulty-stats">
+                        <span>VEL <span class="value">1.5x</span></span>
+                        <span>VIDA <span class="value">150%</span></span>
+                        <span>PTS <span class="value">1.5x</span></span>
+                    </div>
+                </div>
+                
+                <div class="difficulty-card" data-difficulty="extreme">
+                    <div class="difficulty-name">EXTREMO</div>
+                    <div class="difficulty-desc">Para audaces</div>
+                    <div class="difficulty-stats">
+                        <span>VEL <span class="value">2.5x</span></span>
+                        <span>VIDA <span class="value">200%</span></span>
+                        <span>PTS <span class="value">2.5x</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="start-button disabled" id="start-game-btn" disabled>COMENZAR</button>
+        </div>
+    </div>
+
+    <!-- JUEGO PRINCIPAL -->
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="tracking-reticle">
+            <div class="reticle-line-horizontal" id="reticle-horizontal"></div>
+            <div class="reticle-line-vertical" id="reticle-vertical"></div>
+            <div class="reticle-circle-outer" id="reticle-outer"></div>
+            <div class="reticle-circle-inner" id="reticle-inner"></div>
+            <div class="reticle-dot" id="reticle-dot"></div>
+            <div class="target-info-reticle" id="target-info">---</div>
+        </div>
+        
+        <div id="laser-beam"></div>
+        
+        <div id="headshot-msg">🤠 HEADSHOT 🤠</div>
+
+        <div id="kill-feed"></div>
+
+        <div id="minimap">
+            <canvas id="minimapCanvas" width="200" height="200"></canvas>
+        </div>
+
+        <div class="hud-layer">
+            <div style="display: flex; justify-content: space-between; width: 100%;">
+                <div id="top-left" class="glass-panel">
+                    <div class="label">PUEBLO VAQUERO</div>
+                    <div id="ui-score" class="value">001500</div>
+                    <div style="display: flex; gap: 40px; margin-top: 10px;">
+                        <div><span class="label">KILLS</span> <span id="ui-kills" style="color: #d2691e; font-size: 28px;">0</span></div>
+                        <div><span class="label">HS</span> <span id="ui-headshots" style="color: gold; font-size: 28px;">0</span></div>
+                    </div>
+                </div>
+                <div id="top-right" class="glass-panel">
+                    <div class="label" style="color: #ff0044;">ALERTA</div>
+                    <div class="value" style="color: #d2691e;" id="threat-level">LVL 01</div>
+                    <div class="label">FORAJIDOS: <span id="enemy-count">4</span></div>
+                    <div class="label" id="difficulty-indicator" style="margin-top: 5px;">NORMAL</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingStatus = document.getElementById('loading-status');
+        const menuContainer = document.getElementById('menu-container');
+        const gameContainer = document.getElementById('game-container');
+        const difficultyCards = document.querySelectorAll('.difficulty-card');
+        const startButton = document.getElementById('start-game-btn');
+        const difficultyIndicator = document.getElementById('difficulty-indicator');
+        const soundStatus = document.getElementById('sound-status');
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const minimapCanvas = document.getElementById('minimapCanvas');
+        const minimapCtx = minimapCanvas.getContext('2d');
+        const headshotMsg = document.getElementById('headshot-msg');
+        const killFeed = document.getElementById('kill-feed');
+        const trackingReticle = document.getElementById('tracking-reticle');
+        const laserBeam = document.getElementById('laser-beam');
+        
+        // Elementos de la mira
+        const reticleHorizontal = document.getElementById('reticle-horizontal');
+        const reticleVertical = document.getElementById('reticle-vertical');
+        const reticleOuter = document.getElementById('reticle-outer');
+        const reticleInner = document.getElementById('reticle-inner');
+        const reticleDot = document.getElementById('reticle-dot');
+        const targetInfo = document.getElementById('target-info');
+        
+        // Variables del juego
+        let width, height, score = 1500, kills = 0, headshots = 0;
+        let mouse = { x: 0, y: 0 };
+        let isAiming = false;
+        let gameTime = 0;
+        let particles = [];
+        let lockedEnemy = null;
+        let lockProgress = 0;
+        let currentDifficulty = null;
+        let animationFrame;
+        
+        // Imágenes - AHORA EN FORMATO PNG
+        const images = {
+            enemyBandido: new Image(),
+            enemyForajido: new Image(),
+            enemySheriff: new Image(),
+            background: new Image()
+        };
+
+        const enemies = [];
+        const ENEMY_TYPES = ['bandido', 'forajido', 'sheriff'];
+
+        // --- SISTEMA DE SONIDO ---
+        const sounds = {
+            menuMusic: new Audio('sounds/menu_music.mp3'),
+            backgroundMusic: new Audio('sounds/musica_fondo.mp3'),
+            shoot: new Audio('sounds/disparo.mp3'),
+            headshot: new Audio('sounds/headshot.mp3'),
+            kill: new Audio('sounds/kill.mp3'),
+            select: new Audio('sounds/select.mp3')
+        };
+
+        // Configurar loops y volumen
+        sounds.menuMusic.loop = true;
+        sounds.backgroundMusic.loop = true;
+        sounds.menuMusic.volume = 0.5;
+        sounds.backgroundMusic.volume = 0.5;
+        sounds.shoot.volume = 0.7;
+        sounds.headshot.volume = 0.8;
+        sounds.kill.volume = 0.7;
+        sounds.select.volume = 0.4;
+
+        // Precargar imágenes y sonidos
+        let loadedItems = 0;
+        const totalItems = 9; // 5 sonidos + 3 enemigos PNG + 1 fondo
+
+        function checkAllLoaded() {
+            loadedItems++;
+            loadingStatus.innerHTML = `Cargando recursos... ${loadedItems}/${totalItems}`;
+            
+            if (loadedItems >= totalItems) {
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        soundStatus.style.display = 'block';
+                        soundStatus.innerHTML = '🔊 Haz clic para activar el audio';
+                    }, 1000);
+                }, 500);
+            }
+        }
+
+        // Cargar imágenes PNG
+        images.background.src = 'fondo_juego.jpg';
+        images.enemyBandido.src = 'enemigo_bandido.png';
+        images.enemyForajido.src = 'enemigo_forajido.png';
+        images.enemySheriff.src = 'enemigo_sheriff.png';
+
+        images.background.onload = checkAllLoaded;
+        images.background.onerror = checkAllLoaded;
+        images.enemyBandido.onload = checkAllLoaded;
+        images.enemyBandido.onerror = checkAllLoaded;
+        images.enemyForajido.onload = checkAllLoaded;
+        images.enemyForajido.onerror = checkAllLoaded;
+        images.enemySheriff.onload = checkAllLoaded;
+        images.enemySheriff.onerror = checkAllLoaded;
+
+        // Precargar sonidos
+        for (let [key, audio] of Object.entries(sounds)) {
+            audio.addEventListener('canplaythrough', checkAllLoaded, { once: true });
+            audio.addEventListener('error', checkAllLoaded, { once: true });
+            audio.load();
+        }
+
+        // Activar audio con clic
+        let audioActivated = false;
+        function activateAudio() {
+            if (!audioActivated) {
+                audioActivated = true;
+                soundStatus.innerHTML = '✅ Audio activado - Música sonando';
+                soundStatus.style.background = 'rgba(0,128,0,0.9)';
+                
+                sounds.menuMusic.play().catch(() => {
+                    soundStatus.innerHTML = '⚠️ Haz clic de nuevo para activar el audio';
+                });
+                
+                setTimeout(() => {
+                    soundStatus.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        document.addEventListener('click', activateAudio, { once: true });
+
+        function playSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound && audioActivated) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Error reproduciendo:', soundName));
+            }
+        }
+
+        function stopSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.pause();
+                sound.currentTime = 0;
+            }
+        }
+
+        // --- MENÚ ---
+        difficultyCards.forEach(card => {
+            card.addEventListener('click', () => {
+                difficultyCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                currentDifficulty = card.dataset.difficulty;
+                
+                startButton.classList.remove('disabled');
+                startButton.disabled = false;
+                
+                playSound('select');
+            });
+        });
+
+        startButton.addEventListener('click', () => {
+            if (currentDifficulty) {
+                playSound('select');
+                stopSound('menuMusic');
+                
+                menuContainer.style.display = 'none';
+                gameContainer.style.display = 'block';
+                
+                const difficultyText = {
+                    'normal': 'NORMAL',
+                    'hard': 'DIFÍCIL',
+                    'extreme': 'EXTREMO'
+                }[currentDifficulty];
+                difficultyIndicator.innerText = difficultyText;
+                
+                applyDifficultySettings();
+                initEnemies();
+                animate();
+                
+                setTimeout(() => {
+                    playSound('backgroundMusic');
+                }, 500);
+            }
+        });
+
+        function applyDifficultySettings() {
+            switch(currentDifficulty) {
+                case 'hard': score = 1000; break;
+                case 'extreme': score = 500; break;
+            }
+            document.getElementById('ui-score').innerText = score.toString().padStart(6, '0');
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8 - 2;
+                this.life = 1;
+                this.color = color;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.2;
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                this.life -= 0.01;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.shadowBlur = this.life * 20;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, 4, 4);
+                ctx.restore();
+            }
+        }
+
+        class Enemy {
+            constructor() { 
+                this.reset(); 
+            }
+            reset() {
+                const speedMultiplier = {
+                    'normal': 1,
+                    'hard': 1.5,
+                    'extreme': 2.5
+                }[currentDifficulty] || 1;
+                
+                const healthMultiplier = {
+                    'normal': 1,
+                    'hard': 1.5,
+                    'extreme': 2
+                }[currentDifficulty] || 1;
+                
+                this.x = Math.random() * width;
+                this.y = height * 0.3 + Math.random() * 300;
+                this.speed = ((Math.random() - 0.5) * 3) * speedMultiplier;
+                this.type = ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
+                
+                const baseHealth = this.type === 'forajido' ? 2 : 1;
+                this.health = Math.ceil(baseHealth * healthMultiplier);
+                
+                // Asignar imagen PNG según tipo
+                this.image = this.type === 'bandido' ? images.enemyBandido :
+                            this.type === 'forajido' ? images.enemyForajido :
+                            images.enemySheriff;
+                
+                this.width = 60;
+                this.height = 80;
+                this.id = Math.random();
+            }
+            update() {
+                this.x += this.speed;
+                if (this.x < -50 || this.x > width + 50) this.speed *= -1;
+            }
+            draw() {
+                if (this.image.complete && this.image.naturalHeight > 0) {
+                    ctx.save();
+                    ctx.shadowColor = '#d2691e';
+                    ctx.shadowBlur = 20;
+                    ctx.drawImage(this.image, this.x - this.width/2, this.y - this.height/2, this.width, this.height);
+                    
+                    if (this.health > 1 || currentDifficulty === 'extreme') {
+                        ctx.shadowBlur = 15;
+                        ctx.fillStyle = '#00ff00';
+                        const maxHealth = this.type === 'forajido' ? 2 : 1;
+                        ctx.fillRect(this.x - 30, this.y - 50, 60 * (this.health / maxHealth), 6);
+                    }
+                    ctx.restore();
+                } else {
+                    // Fallback si la imagen PNG no cargó
+                    ctx.save();
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(this.x - 25, this.y - 40, 50, 80);
+                    ctx.fillStyle = '#f4e4c1';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y - 50, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        }
+
+        function updateReticle() {
+            if (!isAiming) {
+                trackingReticle.style.display = 'none';
+                laserBeam.innerHTML = '';
+                return;
+            }
+            
+            trackingReticle.style.display = 'block';
+            
+            const elements = [reticleHorizontal, reticleVertical, reticleOuter, reticleInner, reticleDot, targetInfo];
+            
+            elements.forEach(el => {
+                if (el) {
+                    el.style.left = mouse.x + 'px';
+                    el.style.top = mouse.y + 'px';
+                }
+            });
+            
+            let closestEnemy = null;
+            let closestDistance = Infinity;
+            
+            enemies.forEach(enemy => {
+                const distance = Math.hypot(mouse.x - enemy.x, mouse.y - enemy.y);
+                if (distance < closestDistance && distance < 150) {
+                    closestDistance = distance;
+                    closestEnemy = enemy;
+                }
+            });
+            
+            if (closestEnemy) {
+                lockProgress = Math.min(1, lockProgress + 0.02);
+                
+                if (lockProgress >= 1) {
+                    lockedEnemy = closestEnemy;
+                    targetInfo.innerHTML = `${closestEnemy.type.toUpperCase()} | ${Math.floor(closestEnemy.health * 100)}%`;
+                    updateLaser(closestEnemy);
+                } else {
+                    lockedEnemy = null;
+                    targetInfo.innerHTML = 'BLOQUEANDO... ' + Math.floor(lockProgress * 100) + '%';
+                    laserBeam.innerHTML = '';
+                }
+            } else {
+                lockProgress = Math.max(0, lockProgress - 0.01);
+                lockedEnemy = null;
+                targetInfo.innerHTML = '---';
+                laserBeam.innerHTML = '';
+            }
+        }
+
+        function updateLaser(enemy) {
+            laserBeam.innerHTML = '';
+            
+            const dx = enemy.x - mouse.x;
+            const dy = enemy.y - mouse.y;
+            const distance = Math.hypot(dx, dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            
+            const laserLine = document.createElement('div');
+            laserLine.className = 'laser-line';
+            laserLine.style.left = mouse.x + 'px';
+            laserLine.style.top = mouse.y + 'px';
+            laserLine.style.width = distance + 'px';
+            laserLine.style.transform = `rotate(${angle}deg)`;
+            laserBeam.appendChild(laserLine);
+            
+            const laserDot = document.createElement('div');
+            laserDot.className = 'laser-dot';
+            laserDot.style.left = enemy.x + 'px';
+            laserDot.style.top = enemy.y + 'px';
+            laserBeam.appendChild(laserDot);
+        }
+
+        function drawBackground() {
+            if (images.background.complete && images.background.naturalHeight > 0) {
+                ctx.drawImage(images.background, 0, 0, width, height);
+            } else {
+                const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, '#0a0f1a');
+                gradient.addColorStop(1, '#5d3a1a');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+            }
+            
+            // --- AMBIENTACIÓN DEL VIEJO OESTE ---
+            ctx.save();
+            
+            // Nubes de polvo
+            for (let i = 0; i < 5; i++) {
+                const x = (gameTime * 20 + i * 300) % (width + 400) - 200;
+                const y = height * 0.7 + Math.sin(gameTime + i) * 20;
+                
+                ctx.globalAlpha = 0.1;
+                ctx.fillStyle = '#8B7355';
+                ctx.beginPath();
+                ctx.ellipse(x, y, 100, 30, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Cardos rodando (tumbleweeds)
+            for (let i = 0; i < 3; i++) {
+                const x = (gameTime * 30 + i * 500) % (width + 200) - 100;
+                const y = height * 0.65 + Math.sin(gameTime * 2 + i) * 10;
+                
+                ctx.globalAlpha = 0.3;
+                ctx.strokeStyle = '#8B5A2B';
+                ctx.lineWidth = 2;
+                
+                for (let j = 0; j < 5; j++) {
+                    const angle = (j / 5) * Math.PI * 2 + gameTime * 5;
+                    ctx.beginPath();
+                    ctx.arc(x + Math.cos(angle) * 15, y + Math.sin(angle) * 15, 10, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+            
+            // Aves volando
+            for (let i = 0; i < 4; i++) {
+                const x = (gameTime * 50 + i * 400) % (width + 200) - 100;
+                const y = 100 + Math.sin(gameTime * 3 + i) * 30;
+                
+                ctx.globalAlpha = 0.2;
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + 15, y - 10);
+                ctx.lineTo(x + 30, y);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        }
+
+        function updateMinimap() {
+            minimapCtx.clearRect(0, 0, 200, 200);
+            
+            minimapCtx.fillStyle = 'rgba(0,0,0,0.8)';
+            minimapCtx.fillRect(0, 0, 200, 200);
+            
+            enemies.forEach(enemy => {
+                const mapX = (enemy.x / width) * 200;
+                const mapY = (enemy.y / height) * 200;
+                
+                minimapCtx.fillStyle = '#d2691e';
+                minimapCtx.beginPath();
+                minimapCtx.arc(mapX, mapY, 5, 0, Math.PI*2);
+                minimapCtx.fill();
+            });
+            
+            minimapCtx.fillStyle = '#00ff00';
+            minimapCtx.beginPath();
+            minimapCtx.arc(100, 100, 6, 0, Math.PI*2);
+            minimapCtx.fill();
+            
+            minimapCtx.strokeStyle = '#d2691e';
+            minimapCtx.lineWidth = 3;
+            minimapCtx.strokeRect(0, 0, 200, 200);
+        }
+
+        function updateThreatLevel() {
+            // Calcular nivel basado en kills
+            const level = Math.min(5, Math.floor(kills / 3) + 1);
+            document.getElementById('threat-level').innerText = `LVL 0${level}`;
+            
+            // Cambiar color según nivel
+            const threatElement = document.getElementById('threat-level');
+            if (level >= 4) {
+                threatElement.style.color = '#ff0044';
+            } else if (level >= 2) {
+                threatElement.style.color = '#ff8800';
+            } else {
+                threatElement.style.color = '#d2691e';
+            }
+        }
+
+        function addKillMessage(enemyType, isHeadshot) {
+            const msg = document.createElement('div');
+            msg.className = 'kill-message';
+            msg.style.borderLeftColor = isHeadshot ? 'gold' : '#d2691e';
+            
+            const scoreMultiplier = {
+                'normal': 1, 'hard': 1.5, 'extreme': 2.5
+            }[currentDifficulty] || 1;
+            
+            const baseScore = isHeadshot ? 2000 : 1500;
+            const finalScore = Math.floor(baseScore * scoreMultiplier);
+            
+            msg.innerHTML = `
+                <span style="color: ${isHeadshot ? 'gold' : '#fff'}">${isHeadshot ? '🤠' : '💀'}</span>
+                ${enemyType.toUpperCase()}
+                <span style="color: gold; float: right;">+${finalScore}</span>
+            `;
+            killFeed.appendChild(msg);
+            
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        function shoot() {
+            if(!isAiming) return;
+            
+            playSound('shoot');
+            
+            enemies.forEach((e, i) => {
+                if (lockedEnemy && e.id !== lockedEnemy.id) return;
+                
+                const distance = Math.hypot(mouse.x - e.x, mouse.y - e.y);
+                
+                if(distance < 50) {
+                    const isHeadshot = distance < 25;
+                    
+                    e.health -= 1;
+                    
+                    if(e.health <= 0) {
+                        const scoreMultiplier = {
+                            'normal': 1, 'hard': 1.5, 'extreme': 2.5
+                        }[currentDifficulty] || 1;
+                        
+                        const baseScore = isHeadshot ? 2000 : 1500;
+                        const bonusScore = e.type === 'forajido' ? 500 : (e.type === 'sheriff' ? 1000 : 0);
+                        const totalScore = Math.floor((baseScore + bonusScore) * scoreMultiplier);
+                        
+                        score += totalScore;
+                        kills++;
+                        if(isHeadshot) headshots++;
+                        
+                        if(isHeadshot) {
+                            playSound('headshot');
+                            headshotMsg.style.display = 'block';
+                            setTimeout(() => headshotMsg.style.display = 'none', 1000);
+                            
+                            for(let p = 0; p < 20; p++) {
+                                particles.push(new Particle(e.x, e.y, 'gold'));
+                            }
+                        } else {
+                            playSound('kill');
+                        }
+                        
+                        document.getElementById('ui-score').innerText = score.toString().padStart(6, '0');
+                        document.getElementById('ui-kills').innerText = kills;
+                        document.getElementById('ui-headshots').innerText = headshots;
+                        
+                        updateThreatLevel();
+                        addKillMessage(e.type, isHeadshot);
+                        
+                        enemies.splice(i, 1);
+                        setTimeout(() => {
+                            enemies.push(new Enemy());
+                            document.getElementById('enemy-count').innerText = enemies.length;
+                        }, 1000);
+                    }
+                }
+            });
+        }
+
+        function animate() {
+            gameTime += 0.01;
+            drawBackground();
+            
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            enemies.forEach(e => { e.update(); e.draw(); });
+            
+            updateReticle();
+            updateMinimap();
+            
+            animationFrame = requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('mousemove', e => { 
+            mouse.x = e.clientX; 
+            mouse.y = e.clientY; 
+        });
+        
+        window.addEventListener('mousedown', e => {
+            if(e.button === 0) shoot();
+            if(e.button === 2) { 
+                isAiming = true; 
+                document.body.style.cursor = 'none';
+            }
+        });
+        
+        window.addEventListener('mouseup', e => { 
+            if(e.button === 2) { 
+                isAiming = false; 
+            }
+        });
+        
+        window.addEventListener('contextmenu', e => e.preventDefault());
+
+        function initEnemies() {
+            enemies.length = 0;
+            for(let i=0; i<4; i++) enemies.push(new Enemy());
+            document.getElementById('enemy-count').innerText = enemies.length;
+            updateThreatLevel();
+        }
+
+        resize();
+    </script>
+</body>
+</html>
