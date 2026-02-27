@@ -1,0 +1,71 @@
+:root {
+    --amber: #ffb000;
+    --bg: #050505;
+}
+
+body {
+    background-color: #000;
+    color: var(--amber);
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.monitor {
+    width: 800px;
+    height: 600px;
+    background-color: var(--bg);
+    border: 10px solid #1a1a1a;
+    padding: 20px;
+    box-shadow: inset 0 0 50px #000;
+    display: flex;
+    flex-direction: column;
+}
+
+#consola {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 20px 0;
+    padding-right: 10px;
+}
+
+#consola::-webkit-scrollbar { width: 5px; }
+#consola::-webkit-scrollbar-thumb { background: var(--amber); }
+
+.linea-comando { display: flex; align-items: center; }
+.prompt { margin-right: 10px; font-weight: bold; }
+
+input {
+    background: transparent;
+    border: none;
+    color: var(--amber);
+    font-family: inherit;
+    font-size: 1em;
+    outline: none;
+    flex-grow: 1;
+}
+
+.comando-eco { color: #fff; margin: 10px 0 2px 0; }
+.respuesta { margin-bottom: 10px; color: var(--amber); opacity: 0.8; }
+
+button {
+    background: transparent;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    padding: 10px;
+    cursor: pointer;
+}
+
+button:hover { background: var(--amber); color: #000; }
+
+.efecto-crt {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    background-size: 100% 3px, 3px 100%;
+    pointer-events: none;
+}

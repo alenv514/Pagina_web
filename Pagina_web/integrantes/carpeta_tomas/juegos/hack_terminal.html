@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REFLEX ZONE</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-cyan: #00ffe7;
+    --neon-pink: #ff2d78;
+    --neon-yellow: #ffe600;
+    --neon-green: #39ff14;
+    --bg: #050510;
+    --panel: #0a0a1f;
+    --glow-cyan: 0 0 8px #00ffe7, 0 0 20px #00ffe799, 0 0 40px #00ffe744;
+    --glow-pink: 0 0 8px #ff2d78, 0 0 20px #ff2d7899, 0 0 40px #ff2d7844;
+    --glow-green: 0 0 8px #39ff14, 0 0 20px #39ff1499, 0 0 40px #39ff1444;
+    --glow-yellow: 0 0 8px #ffe600, 0 0 20px #ffe60099, 0 0 40px #ffe60044;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Scanlines */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Grid background */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,231,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,231,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+  }
+
+  h1 {
+    font-family: 'Black Ops One', cursive;
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    color: var(--neon-cyan);
+    text-shadow: var(--glow-cyan);
+    letter-spacing: 6px;
+    margin-bottom: 4px;
+    animation: flicker 5s infinite;
+  }
+
+  .subtitle {
+    color: var(--neon-pink);
+    text-shadow: var(--glow-pink);
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+  }
+
+  @keyframes flicker {
+    0%,96%,98%,100% { opacity: 1; }
+    97%,99% { opacity: 0.6; }
+  }
+
+  /* HUD */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    border: 1px solid rgba(0,255,231,0.2);
+    background: rgba(0,255,231,0.03);
+    border-radius: 4px;
+  }
+
+  .hud-item { text-align: center; }
+  .hud-label { font-size: 0.6rem; color: rgba(0,255,231,0.5); letter-spacing: 3px; margin-bottom: 2px; }
+  .hud-value { font-size: 1.4rem; color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+
+  /* Game arena */
+  #arena {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    border: 2px solid rgba(0,255,231,0.25);
+    border-radius: 8px;
+    background: rgba(0,0,20,0.9);
+    overflow: hidden;
+    cursor: crosshair;
+    box-shadow: inset 0 0 60px rgba(0,255,231,0.03), 0 0 30px rgba(0,255,231,0.1);
+  }
+
+  /* Target */
+  .target {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: transform 0.05s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .target::before {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    width: 140%;
+    height: 140%;
+    animation: ring-pulse 0.8s ease-out infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes ring-pulse {
+    0% { transform: scale(0.7); opacity: 0.7; }
+    100% { transform: scale(1.2); opacity: 0; }
+  }
+
+  .target.type-cyan {
+    background: radial-gradient(circle, rgba(0,255,231,0.9) 0%, rgba(0,255,231,0.3) 60%, transparent 100%);
+    color: var(--neon-cyan);
+    box-shadow: var(--glow-cyan), inset 0 0 15px rgba(0,255,231,0.5);
+    width: 52px; height: 52px;
+  }
+
+  .target.type-pink {
+    background: radial-gradient(circle, rgba(255,45,120,0.9) 0%, rgba(255,45,120,0.3) 60%, transparent 100%);
+    color: var(--neon-pink);
+    box-shadow: var(--glow-pink), inset 0 0 15px rgba(255,45,120,0.5);
+    width: 40px; height: 40px;
+  }
+
+  .target.type-yellow {
+    background: radial-gradient(circle, rgba(255,230,0,0.9) 0%, rgba(255,230,0,0.3) 60%, transparent 100%);
+    color: var(--neon-yellow);
+    box-shadow: var(--glow-yellow), inset 0 0 15px rgba(255,230,0,0.5);
+    width: 32px; height: 32px;
+  }
+
+  .target.type-green {
+    background: radial-gradient(circle, rgba(57,255,20,0.9) 0%, rgba(57,255,20,0.3) 60%, transparent 100%);
+    color: var(--neon-green);
+    box-shadow: var(--glow-green), inset 0 0 15px rgba(57,255,20,0.5);
+    width: 60px; height: 60px;
+  }
+
+  /* bonus star */
+  .target.bonus {
+    border-radius: 12px;
+    transform: translate(-50%, -50%) rotate(15deg);
+    animation: spin-bonus 2s linear infinite;
+  }
+
+  @keyframes spin-bonus {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* Floating score popup */
+  .score-pop {
+    position: absolute;
+    font-family: 'Black Ops One', cursive;
+    font-size: 1.2rem;
+    pointer-events: none;
+    animation: float-up 0.8s forwards;
+    z-index: 50;
+  }
+
+  @keyframes float-up {
+    0% { opacity: 1; transform: translateY(0) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+  }
+
+  /* Shrink bar */
+  .shrink-bar-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .shrink-bar {
+    height: 100%;
+    background: var(--neon-green);
+    box-shadow: var(--glow-green);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  /* Screens */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5,5,16,0.92);
+    z-index: 30;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .screen.hidden { display: none; }
+
+  .screen h2 {
+    font-family: 'Black Ops One', cursive;
+    font-size: 2rem;
+    letter-spacing: 4px;
+  }
+
+  .screen p {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 2px;
+    max-width: 300px;
+    line-height: 1.8;
+    text-align: center;
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 8px 0;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 1px;
+  }
+
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .btn {
+    font-family: 'Black Ops One', cursive;
+    font-size: 1rem;
+    letter-spacing: 4px;
+    padding: 12px 36px;
+    border: 2px solid var(--neon-cyan);
+    background: transparent;
+    color: var(--neon-cyan);
+    text-shadow: var(--glow-cyan);
+    box-shadow: var(--glow-cyan);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+
+  .btn:hover {
+    background: rgba(0,255,231,0.12);
+    box-shadow: 0 0 20px #00ffe7, 0 0 50px #00ffe799;
+    transform: scale(1.04);
+  }
+
+  .final-score {
+    font-family: 'Black Ops One', cursive;
+    font-size: 3.5rem;
+    color: var(--neon-yellow);
+    text-shadow: var(--glow-yellow);
+  }
+
+  .miss-flash {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,45,120,0.08);
+    pointer-events: none;
+    animation: miss-anim 0.25s forwards;
+    z-index: 20;
+  }
+
+  @keyframes miss-anim {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Timer bar above arena */
+  .timer-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .timer-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+    box-shadow: 0 0 8px #00ffe7;
+    transition: width 0.1s linear, background 0.5s;
+    width: 100%;
+  }
+
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>REFLEX ZONE</h1>
+  <div class="subtitle">▸▸ CLICK FAST. SURVIVE. ◂◂</div>
+
+  <div class="hud">
+    <div class="hud-item">
+      <div class="hud-label">SCORE</div>
+      <div class="hud-value" id="score-display">0</div>
+    </div>
+    <div class="hud-item">
+      <div class="hud-label">LEVEL</div>
+      <div class="hud-value" id="level-display">1</div>
+    </div>
+    <div class="hud-item">
+      <div class="hud-label">COMBO</div>
+      <div class="hud-value" id="combo-display">x1</div>
+    </div>
+    <div class="hud-item">
+      <div class="hud-label">VIDAS</div>
+      <div class="hud-value" id="lives-display">♥♥♥</div>
+    </div>
+  </div>
+
+  <div class="timer-bar-wrap">
+    <div class="timer-bar" id="timer-bar"></div>
+  </div>
+
+  <div id="arena">
+    <!-- Start screen -->
+    <div class="screen" id="start-screen">
+      <h2 style="color:var(--neon-cyan);text-shadow:var(--glow-cyan);">REFLEX ZONE</h2>
+      <p>Haz clic en los objetivos antes de que desaparezcan. ¡Encadena combos para multiplicar tu puntuación!</p>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#00ffe7;box-shadow:0 0 8px #00ffe7"></div> NORMAL · 10pts</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ff2d78;box-shadow:0 0 8px #ff2d78"></div> RÁPIDO · 20pts</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ffe600;box-shadow:0 0 8px #ffe600"></div> MICRO · 30pts</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#39ff14;box-shadow:0 0 8px #39ff14;border-radius:4px"></div> BONUS · 50pts</div>
+      </div>
+      <button class="btn" id="start-btn">INICIAR</button>
+    </div>
+
+    <!-- Game over screen -->
+    <div class="screen hidden" id="gameover-screen">
+      <h2 style="color:var(--neon-pink);text-shadow:var(--glow-pink);">GAME OVER</h2>
+      <div class="final-score" id="final-score">0</div>
+      <p id="final-msg">¡Sigue intentándolo!</p>
+      <button class="btn" id="restart-btn">REINTENTAR</button>
+    </div>
+
+    <!-- shrink bars per target are added dynamically -->
+  </div>
+</div>
+
+<script>
+const arena = document.getElementById('arena');
+const scoreDisplay = document.getElementById('score-display');
+const levelDisplay = document.getElementById('level-display');
+const comboDisplay = document.getElementById('combo-display');
+const livesDisplay = document.getElementById('lives-display');
+const timerBar = document.getElementById('timer-bar');
+const startScreen = document.getElementById('start-screen');
+const gameoverScreen = document.getElementById('gameover-screen');
+const finalScore = document.getElementById('final-score');
+const finalMsg = document.getElementById('final-msg');
+
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('restart-btn').addEventListener('click', startGame);
+
+const TYPES = [
+  { id: 'cyan',   pts: 10, lifeBase: 2500 },
+  { id: 'pink',   pts: 20, lifeBase: 1800 },
+  { id: 'yellow', pts: 30, lifeBase: 1400 },
+  { id: 'green',  pts: 50, lifeBase: 3000, bonus: true },
+];
+
+let score, lives, combo, level, targets, spawnInterval, levelTimer, raf, gameRunning;
+let nextLevelScore;
+let totalGameTime, gameStart;
+
+function startGame() {
+  score = 0; lives = 3; combo = 1; level = 1;
+  nextLevelScore = 100;
+  targets = [];
+  gameRunning = true;
+
+  startScreen.classList.add('hidden');
+  gameoverScreen.classList.add('hidden');
+
+  // clear old targets
+  arena.querySelectorAll('.target, .miss-flash').forEach(e => e.remove());
+
+  updateHUD();
+  startSpawning();
+  animateTimerBar();
+}
+
+function updateHUD() {
+  scoreDisplay.textContent = score;
+  levelDisplay.textContent = level;
+  comboDisplay.textContent = `x${combo}`;
+  livesDisplay.textContent = '♥'.repeat(lives) + '♡'.repeat(Math.max(0, 3 - lives));
+  livesDisplay.style.color = lives === 1 ? '#ff2d78' : '#00ffe7';
+  livesDisplay.style.textShadow = lives === 1 ? 'var(--glow-pink)' : 'var(--glow-cyan)';
+}
+
+function getSpawnRate() {
+  return Math.max(400, 1400 - (level - 1) * 100);
+}
+
+function getLifeTime(base) {
+  return Math.max(base * 0.4, base - (level - 1) * 180);
+}
+
+let spawnTimeout;
+function startSpawning() {
+  clearTimeout(spawnTimeout);
+  spawnTarget();
+}
+
+function spawnTarget() {
+  if (!gameRunning) return;
+
+  // weighted random type
+  const weights = [50, 25, 15, 10];
+  const r = Math.random() * 100;
+  let cumulative = 0, typeIndex = 0;
+  for (let i = 0; i < weights.length; i++) {
+    cumulative += weights[i];
+    if (r < cumulative) { typeIndex = i; break; }
+  }
+  const type = TYPES[typeIndex];
+
+  const el = document.createElement('div');
+  el.className = `target type-${type.id}${type.bonus ? ' bonus' : ''}`;
+
+  const margin = 40;
+  const x = margin + Math.random() * (arena.offsetWidth - margin * 2);
+  const y = margin + Math.random() * (arena.offsetHeight - margin * 2 - 20);
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+
+  const lifeTime = getLifeTime(type.lifeBase);
+
+  // shrink bar
+  const barWrap = document.createElement('div');
+  barWrap.className = 'shrink-bar-wrap';
+  const bar = document.createElement('div');
+  bar.className = 'shrink-bar';
+  barWrap.appendChild(bar);
+  el.appendChild(barWrap);
+
+  // animate shrink bar
+  const start = performance.now();
+  let barRaf;
+  function shrinkBar(now) {
+    const elapsed = now - start;
+    const pct = Math.max(0, 1 - elapsed / lifeTime);
+    bar.style.width = (pct * 100) + '%';
+
+    if (pct < 0.3) {
+      bar.style.background = '#ff2d78';
+      bar.style.boxShadow = 'var(--glow-pink)';
+    } else if (pct < 0.6) {
+      bar.style.background = '#ffe600';
+      bar.style.boxShadow = 'var(--glow-yellow)';
+    }
+
+    if (elapsed < lifeTime) {
+      barRaf = requestAnimationFrame(shrinkBar);
+    }
+  }
+  barRaf = requestAnimationFrame(shrinkBar);
+
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!gameRunning) return;
+    cancelAnimationFrame(barRaf);
+    clearTimeout(removeTimeout);
+    el.remove();
+    targets = targets.filter(t => t.el !== el);
+
+    const earned = type.pts * combo;
+    score += earned;
+    combo = Math.min(combo + 1, 8);
+    updateHUD();
+    checkLevelUp();
+    showScorePop(x, y, `+${earned}`, type.id);
+  });
+
+  const obj = { el, barRaf };
+  targets.push(obj);
+  arena.appendChild(el);
+
+  // auto-remove after lifeTime
+  const removeTimeout = setTimeout(() => {
+    if (!gameRunning) return;
+    cancelAnimationFrame(barRaf);
+    if (el.parentNode) {
+      el.remove();
+      targets = targets.filter(t => t.el !== el);
+      missedTarget();
+    }
+  }, lifeTime);
+
+  spawnTimeout = setTimeout(spawnTarget, getSpawnRate());
+}
+
+function missedTarget() {
+  lives--;
+  combo = 1;
+  updateHUD();
+  flashMiss();
+  if (lives <= 0) endGame();
+}
+
+function flashMiss() {
+  const fl = document.createElement('div');
+  fl.className = 'miss-flash';
+  arena.appendChild(fl);
+  setTimeout(() => fl.remove(), 300);
+}
+
+function showScorePop(x, y, text, type) {
+  const pop = document.createElement('div');
+  pop.className = 'score-pop';
+  pop.textContent = text;
+  pop.style.left = x + 'px';
+  pop.style.top = (y - 20) + 'px';
+  const colors = { cyan: '#00ffe7', pink: '#ff2d78', yellow: '#ffe600', green: '#39ff14' };
+  pop.style.color = colors[type] || '#fff';
+  pop.style.textShadow = `0 0 10px ${colors[type]}`;
+  arena.appendChild(pop);
+  setTimeout(() => pop.remove(), 800);
+}
+
+function checkLevelUp() {
+  if (score >= nextLevelScore) {
+    level++;
+    nextLevelScore = Math.round(nextLevelScore * 1.6);
+    levelDisplay.textContent = level;
+    levelFlash();
+  }
+}
+
+function levelFlash() {
+  arena.style.boxShadow = 'inset 0 0 60px rgba(0,255,231,0.2), 0 0 50px rgba(0,255,231,0.4)';
+  setTimeout(() => {
+    arena.style.boxShadow = 'inset 0 0 60px rgba(0,255,231,0.03), 0 0 30px rgba(0,255,231,0.1)';
+  }, 400);
+}
+
+let timerBarRaf;
+function animateTimerBar() {
+  cancelAnimationFrame(timerBarRaf);
+  const GAME_DURATION = 60000;
+  const start = performance.now();
+  function tick(now) {
+    if (!gameRunning) return;
+    const elapsed = now - start;
+    const pct = Math.max(0, 1 - elapsed / GAME_DURATION);
+    timerBar.style.width = (pct * 100) + '%';
+    if (pct < 0.3) {
+      timerBar.style.background = 'linear-gradient(90deg, #ff2d78, #ff6b78)';
+      timerBar.style.boxShadow = '0 0 8px #ff2d78';
+    } else if (pct < 0.6) {
+      timerBar.style.background = 'linear-gradient(90deg, #ffe600, #00ffe7)';
+    }
+    if (elapsed >= GAME_DURATION) {
+      endGame();
+      return;
+    }
+    timerBarRaf = requestAnimationFrame(tick);
+  }
+  timerBarRaf = requestAnimationFrame(tick);
+}
+
+function endGame() {
+  gameRunning = false;
+  clearTimeout(spawnTimeout);
+  cancelAnimationFrame(timerBarRaf);
+
+  arena.querySelectorAll('.target').forEach(e => e.remove());
+  targets = [];
+
+  finalScore.textContent = score;
+  let msg = '¡Sigue practicando!';
+  if (score >= 2000) msg = '¡LEYENDA DE LA ZONA!';
+  else if (score >= 1000) msg = '¡Reflejos increíbles!';
+  else if (score >= 500) msg = '¡Buen trabajo!';
+  else if (score >= 200) msg = '¡Vas mejorando!';
+  finalMsg.textContent = msg;
+
+  gameoverScreen.classList.remove('hidden');
+  timerBar.style.width = '0%';
+}
+
+// miss click on arena
+arena.addEventListener('click', () => {
+  if (!gameRunning) return;
+  combo = 1;
+  comboDisplay.textContent = 'x1';
+});
+</script>
+</body>
+</html>

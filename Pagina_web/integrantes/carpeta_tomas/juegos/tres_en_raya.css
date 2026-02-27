@@ -1,0 +1,40 @@
+/* --- ESTILOS DEL COMBATE --- */
+#hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px; /* Mismo ancho que el canvas */
+    margin-bottom: 10px;
+    z-index: 5;
+    position: relative;
+}
+
+.contenedor-vida p {
+    margin: 0 0 5px 0;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.barra-fondo {
+    width: 300px;
+    height: 20px;
+    background-color: #222;
+    border: 2px solid var(--phosphor);
+}
+
+.barra-llena {
+    height: 100%;
+    width: 100%; /* Empieza al 100% */
+    transition: width 0.2s;
+}
+
+.cyan { background-color: #00e5ff; }
+.naranja { background-color: #ff4500; }
+
+#mensaje-ko {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: red;
+    text-shadow: 0 0 10px red;
+    display: none; /* Se oculta hasta que alguien gane */
+}

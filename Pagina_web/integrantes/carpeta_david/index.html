@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Práctica de Conversores</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <a href="../../index.html" class="badge"
+    style="position: fixed; top: 20px; left: 20px; text-decoration: none; z-index: 1000; display: inline-block;">←
+    Volver a la Base</a>
+  <video id="result-bg-animation" class="result-bg-animation hidden" playsinline preload="auto" loop
+    aria-hidden="true"></video>
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+  <aside id="correct-animation" class="correct-animation" aria-hidden="true">
+    <video id="correct-animation-media" class="wrong-animation__media hidden"
+      src="assets/images/afirmativo-animation.mp4" playsinline preload="auto"></video>
+    <div class="wrong-animation__glow"></div>
+    <div class="wrong-animation__icon">✨</div>
+  </aside>
+  <aside id="wrong-animation" class="wrong-animation" aria-hidden="true">
+    <video id="wrong-animation-media" class="wrong-animation__media hidden" src="assets/images/error-animation.mp4"
+      playsinline preload="auto"></video>
+    <div class="wrong-animation__glow"></div>
+    <div class="wrong-animation__icon">💥</div>
+  </aside>
+
+  <main class="app">
+    <section id="start-screen" class="card">
+      <h1>🎮 Práctica de Conversores</h1>
+      <p class="subtitle">Responde correctamente antes de que se acabe el tiempo.</p>
+
+      <div class="difficulty-group">
+        <p class="label">Selecciona dificultad</p>
+        <div class="difficulty-options">
+          <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
+          <button class="difficulty-btn" data-difficulty="medium">Media</button>
+          <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+        </div>
+      </div>
+
+      <button id="start-btn" class="primary">Iniciar Práctica</button>
+    </section>
+
+    <section id="game-screen" class="card hidden">
+      <header class="top-bar">
+        <div id="level-badge" class="badge">Nivel: -</div>
+        <div id="timer" class="timer">⏱ 00</div>
+      </header>
+
+      <div class="progress">
+        <span id="question-counter">Pregunta 1/5</span>
+        <span id="score-counter">Puntaje: 0</span>
+      </div>
+
+      <h2 id="question-text">Pregunta</h2>
+      <div id="answers" class="answers"></div>
+
+      <div id="feedback" class="feedback" aria-live="polite"></div>
+      <button id="next-btn" class="primary hidden">Siguiente</button>
+    </section>
+
+    <section id="final-screen" class="card hidden">
+      <h2>🏆 Resultado final</h2>
+      <p id="final-score" class="final-score"></p>
+      <p id="final-message" class="subtitle"></p>
+      <button id="restart-btn" class="primary">Volver al Inicio</button>
+    </section>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+
+</html>
